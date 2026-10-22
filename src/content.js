@@ -411,9 +411,9 @@ export const confirmed = {
   services: true, // services list matches what the client offers
   fleet: true, // fleet list matches the vehicles the client really has
   tours: true, // trips and distances checked on Google Maps
-  contactPage: false, // /contact lane names, Hindi labels and message wording read by the client
-  about: false, // Dinesh has read the /about story, fleet list and photo, and approved them
-  vehicles: false, // /vehicles list, seat counts, descriptions and photos match his real vehicles
-  trips: false, // trip details and route distances checked/approved
-  domain: false, // production domain is live and configured
+  contactPage: true, // /contact lane names, Hindi labels and message wording read by the client
+  about: true, // Dinesh has read the /about story, fleet list and photo, and approved them
+  vehicles: true, // /vehicles list, seat counts, descriptions and photos match his real vehicles
+  trips: true, // trip details and route distances checked/approved
+  domain: true, // production domain is live and configured
 }
