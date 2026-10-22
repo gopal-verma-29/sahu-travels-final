@@ -1,0 +1,48 @@
+/* Reviews carousel. Same rules as the rest of the home page: the page is complete and still
+   without any of it, and everything that waits for scrolling exists only under
+   html[data-motion='on'] (src/lib/motion.js), so a reader who asks for reduced motion gets the
+   finished section at once. Nothing plays by itself: the cab moves only as the reader swipes,
+   and the rest happens once, when the section scrolls into view.
+   Only transform and opacity animate, so nothing shifts. */
+
+/* The strip scrolls and snaps; the arrows, the keyboard and the cab do the work of a scrollbar. */
+.rv-track {
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.rv-track::-webkit-scrollbar { display: none; }
+
+/* The cab's position along the road: --p runs from 0 (first review) to 1 (last), written by
+   Reviews.jsx as the strip scrolls. 5.5rem is the cab's own width. */
+.rv-cab { left: calc(var(--p, 0) * (100% - 5.5rem)); }
+
+/* The rating stone is planted when the section arrives. */
+html[data-motion='on'] .rv-stone {
+  transition: opacity 0.5s ease-out, transform 0.8s var(--hm-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+html[data-motion='on'] .rv-sec:not(.is-in) .rv-stone {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: none;
+}
+
+/* Each name plate lands on its card, as the seat plates do on the vehicles above. */
+html[data-motion='on'] .rv-plate {
+  transition: opacity 0.4s ease-out, transform 0.5s var(--hm-brake, cubic-bezier(0.12, 0.8, 0.24, 1));
+  transition-delay: calc(0.25s + var(--i, 0) * 0.12s);
+}
+html[data-motion='on'] .rv-sec:not(.is-in) .rv-plate {
+  opacity: 0;
+  transform: translateY(-0.5rem) scale(1.06);
+  transition: none;
+}
+
+/* The cab pulls in from the left and parks at the start of the road, on the same braking curve
+   as the hero. The road clips it until it arrives. */
+html[data-motion='on'] .rv-cab-in {
+  transition: transform 1.6s var(--hm-brake, cubic-bezier(0.12, 0.8, 0.24, 1)) 0.2s;
+}
+html[data-motion='on'] .rv-sec:not(.is-in) .rv-cab-in {
+  transform: translateX(-130%);
+  transition: none;
+}

@@ -1,0 +1,119 @@
+/* Motion and the few rules for /trips that utilities cannot express.
+   Only transform, clip-path and stroke-dashoffset move. Nothing here changes layout. */
+
+@layer components {
+  /* Odometer: one wheel per digit, each a strip of 0 to 9 slid into place. */
+  .odo-wheels {
+    display: inline-flex;
+    height: 1em;
+    overflow: hidden;
+  }
+  .odo-wheel {
+    display: block;
+    width: 0.56em;
+    height: 1em;
+    overflow: hidden;
+    text-align: center;
+  }
+  .odo-dim {
+    opacity: 0.4;
+  }
+  .odo-strip {
+    display: block;
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .odo-strip > span {
+    display: block;
+    height: 1em;
+    line-height: 1;
+  }
+
+  /* The road: the filled part is how far down the middle of the screen has got. */
+  .road-fill {
+    transform: scaleY(var(--drive, 0));
+    transform-origin: top;
+  }
+  .road-pin {
+    top: calc(var(--drive, 0) * 100%);
+  }
+}
+
+@keyframes stone-rise {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(1.25rem);
+  }
+  to {
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+@keyframes scene-fall {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes scene-flow {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+@keyframes scene-drift {
+  to {
+    transform: translateX(-26px);
+  }
+}
+@keyframes scene-cabin {
+  to {
+    transform: translate(104px, -78px);
+  }
+}
+
+/* Things that wait for a scroll are hidden only while html[data-motion='on'] (src/lib/motion.js), so a reader
+   who asks for reduced motion gets the finished page at once. useInView sets the "after" state.
+   The milestones rise out of the ground once, when the row first comes into view. */
+html[data-motion='on'] .stones .stone-body {
+  clip-path: inset(100% 0 0 0);
+}
+html[data-motion='on'] .stones[data-rise] .stone-body {
+  animation: stone-rise 0.8s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+/* The distance bar on each card draws itself once, the first time the card is seen. */
+html[data-motion='on'] .reach-fill {
+  clip-path: inset(-6px 100% -6px 0);
+  transition: clip-path 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s;
+}
+html[data-motion='on'] .reach[data-seen] .reach-fill {
+  clip-path: inset(-6px -10px -6px 0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Poster motion only where the subject really moves: falling water, a river, mist, a ropeway cabin.
+     It runs only while that card is on screen. */
+  .scene-fall {
+    animation: scene-fall 1.1s linear infinite paused;
+  }
+  .scene-flow {
+    animation: scene-flow 2.4s linear infinite paused;
+  }
+  .scene-drift {
+    animation: scene-drift 12s ease-in-out infinite alternate paused;
+  }
+  .scene-cabin {
+    animation: scene-cabin 9s ease-in-out infinite alternate paused;
+  }
+  [data-live='true'] :is(.scene-fall, .scene-flow, .scene-drift, .scene-cabin) {
+    animation-play-state: running;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .odo-strip {
+    transition: none;
+  }
+  .road-pin {
+    display: none;
+  }
+}

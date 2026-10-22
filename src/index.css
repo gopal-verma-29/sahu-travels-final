@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  --color-plate: #F6C000;
+  --color-plate-deep: #DDAA00;
+  --color-asphalt: #24272C;
+  --color-asphalt-soft: #3A3E45;
+  --color-wash: #F2F4F1;
+  --color-wa: #25D366;
+  --color-tail: #C8372D;
+
+  --font-display: 'Teko Variable', 'Teko', 'Arial Narrow', sans-serif;
+  --font-body: 'Mukta', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-wash);
+    color: var(--color-asphalt);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--focus, var(--color-asphalt));
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: var(--color-plate);
+    color: var(--color-asphalt);
+  }
+  /* The router moves focus to a page's heading after navigating. It is not a tab stop, so no ring. */
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+}
+
+@layer components {
+  /* The one orchestrated moment: the cab pulls in and parks. */
+  .drive-in {
+    animation: drive-in 2.4s cubic-bezier(0.12, 0.8, 0.24, 1) 0.1s both;
+  }
+}
+
+@keyframes drive-in {
+  from { transform: translateX(-115vw); }
+  to   { transform: translateX(0); }
+}
+
+/* Page transitions (src/router.js). The header and the phone bar stay put while the page dissolves
+   into the next one, and each section's content rises a little as it arrives. Only the content
+   moves, never a full-width background, so no seam opens up under the header. */
+.vt-header { view-transition-name: site-header; }
+.vt-sticky { view-transition-name: sticky-bar; }
+
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-in > * > div:first-child { animation: page-rise 300ms ease-out both; }
+}
+@keyframes page-rise { from { transform: translateY(14px); } }
+
+/* Browsers without the View Transitions API: the new page fades in instead. */
+@supports not (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    .page-in { animation: page-fade 220ms ease-in-out both; }
+  }
+}
+@keyframes page-fade { from { opacity: 0; } }
+
+/* Slow connection: a thin bar shows while the next page downloads (the router sets data-navigating). */
+html[data-navigating]::after {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 3px;
+  background: var(--color-asphalt);
+  transform-origin: left;
+  animation: nav-bar 8s cubic-bezier(0.1, 0.6, 0.2, 1) both;
+  pointer-events: none;
+}
+@keyframes nav-bar { from { transform: scaleX(0); } to { transform: scaleX(0.9); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .drive-in { animation: none; }
+}

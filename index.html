@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--seo:begin--><!--seo:end-->
+    <meta name="theme-color" content="#F6C000" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Intro loader, part 1 of 3: styles. Plain colours rather than the Tailwind tokens, because
+         this has to look right before the app's own stylesheet is parsed. They are the same
+         values: plate #F6C000, asphalt #24272C, wash #F2F4F1. Hidden unless part 3 switches it on. -->
+    <style>
+      .intro {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        place-items: center;
+        overflow: hidden;
+        background: #f6c000;
+        color: #24272c;
+        touch-action: none;
+        overscroll-behavior: none;
+        transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+      }
+      .intro.is-on {
+        display: grid;
+        animation: intro-failsafe 0s linear 9s forwards; /* if every script dies, it still goes */
+      }
+      .intro.is-lift {
+        transform: translateY(-102%);
+        pointer-events: none;
+      }
+
+      /* The road along the bottom edge, with its centre dashes streaming past. It is the last thing
+         to leave: the yellow lifts away with the road as its trailing edge. */
+      .intro::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: calc(100% + 56px);
+        height: 1.5rem;
+        background:
+          repeating-linear-gradient(90deg, #f6c000 0 28px, transparent 28px 56px) center / 100% 4px no-repeat,
+          #24272c;
+        animation: intro-road 0.5s linear infinite;
+      }
+
+      .intro-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-top: -4vh;
+        transition:
+          transform 0.8s cubic-bezier(0.76, 0, 0.24, 1),
+          opacity 0.45s ease-in;
+      }
+      .intro.is-lift .intro-center {
+        transform: translateY(-16vh);
+        opacity: 0;
+      }
+
+      .intro-mark {
+        display: block;
+        width: clamp(4.5rem, 15vw, 6.5rem);
+        height: auto;
+        animation: intro-plant 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      /* The name rises through a mask, the way the headlines do on the pages. It waits for its
+         typeface (class is-go, added by part 3), so it never shows in a stand-in font. */
+      .intro-name {
+        margin: 0;
+        font: 600 clamp(3.5rem, 17vw, 7rem) / 0.95 'Teko Variable', 'Teko', 'Arial Narrow', sans-serif;
+        letter-spacing: 0.01em;
+        text-align: center;
+      }
+      .intro-mask {
+        display: block;
+        overflow: hidden;
+        padding: 0.14em 0.04em 0.06em;
+      }
+      .intro-rise {
+        display: block;
+        transform: translateY(115%);
+      }
+      .intro.is-go .intro-rise {
+        animation: intro-rise 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      @keyframes intro-plant {
+        from {
+          opacity: 0;
+          transform: translateY(1rem);
+        }
+      }
+      @keyframes intro-rise {
+        from {
+          transform: translateY(115%);
+        }
+        to {
+          transform: none;
+        }
+      }
+      @keyframes intro-road {
+        to {
+          transform: translateX(-56px);
+        }
+      }
+      @keyframes intro-failsafe {
+        to {
+          visibility: hidden;
+        }
+      }
+
+      /* While the curtain is up the page underneath holds its own entrance animations (the hero's
+         headline, the cab), so they play as the curtain clears instead of behind it. */
+      html[data-intro='on'] #root *,
+      html[data-intro='on'] #root *::before,
+      html[data-intro='on'] #root *::after {
+        animation-play-state: paused;
+      }
+
+      @media (prefers-reduced-motion: reduce), print {
+        .intro {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Part 2 of 3: markup. The mark is the favicon's shape. Keep the name in step with business.name
+         in src/content.js. Hidden from assistive technology: it is a few seconds of decoration over
+         a page that is not there yet. -->
+    <div class="intro" aria-hidden="true">
+      <div class="intro-center">
+        <svg class="intro-mark" viewBox="0 0 32 32" focusable="false">
+          <rect width="32" height="32" rx="6" fill="#24272C" />
+          <path d="M9 26V15a7 7 0 0 1 14 0v11z" fill="#F6C000" />
+          <rect x="9" y="19" width="14" height="7" fill="#F2F4F1" />
+        </svg>
+        <p class="intro-name"><span class="intro-mask"><span class="intro-rise">Sahu Travels</span></span></p>
+      </div>
+    </div>
+
+    <div id="root"></div>
+
+    <!-- Part 3 of 3: the controller. It runs before the app's code does, so it covers the real wait (the
+         app downloading), then lifts the curtain once the first page has rendered. Nothing here can trap
+         a reader: a timer ends it after 6 seconds whatever else happens. -->
+    <script>
+      ;(() => {
+        const KEY = 'sahu-intro' // sessionStorage key: rename it in each project
+        const HOLD = 1300 // the least it stays on screen, in ms
+        const GIVE_UP = 6000 // the most it stays on screen, in ms
+
+        const html = document.documentElement
+        const loader = document.querySelector('.intro')
+        const root = document.getElementById('root')
+        if (!loader || !root) return
+
+        // Never for readers who ask for reduced motion. Otherwise once per browser session: add
+        // ?intro to the address to see it again.
+        let show = !matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (show) {
+          try {
+            show = !sessionStorage.getItem(KEY) || /[?&]intro\b/.test(location.search)
+            sessionStorage.setItem(KEY, '1')
+          } catch (e) {
+            // storage is blocked (some private modes): better to show it than to guess
+          }
+        }
+        if (!show) {
+          loader.remove()
+          return
+        }
+
+        const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+        let lifted = false
+        const lift = () => {
+          if (lifted) return
+          lifted = true
+          loader.classList.add('is-lift') // the curtain goes up (0.8 s, in the CSS)
+          setTimeout(() => {
+            delete html.dataset.intro // the page's own animations start as the curtain clears the screen
+            root.removeAttribute('inert')
+          }, 260)
+          setTimeout(() => loader.remove(), 900)
+        }
+
+        setTimeout(lift, GIVE_UP) // first, so a failure further down can never leave the curtain up
+        html.dataset.intro = 'on'
+        root.setAttribute('inert', '') // nothing behind the curtain can be tabbed to or tapped
+        loader.classList.add('is-on')
+
+        // The name rises as soon as its typeface is ready, then gets a moment to be read.
+        const fonts = document.fonts
+        const typeface = fonts
+          ? Promise.race([fonts.load('600 1em "Teko Variable"', loader.textContent.trim()), wait(1200)]).catch(() => {})
+          : Promise.resolve()
+        const named = typeface.then(() => {
+          loader.classList.add('is-go')
+          return wait(1000)
+        })
+
+        // The first page has rendered into #root (or its error message has: main.jsx writes one there).
+        const rendered = new Promise((resolve) => {
+          if (root.firstChild) return resolve()
+          new MutationObserver((_, observer) => {
+            observer.disconnect()
+            resolve()
+          }).observe(root, { childList: true })
+        })
+          .then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+          .then(() => fonts && Promise.race([fonts.ready, wait(1500)]))
+
+        Promise.all([wait(HOLD), named, rendered]).then(lift)
+      })()
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,159 @@
+/* Contact page motion. The page is complete and still without any of it:
+   - the load sequence (headline, lead, buttons) and every small effect are CSS only, inside
+     prefers-reduced-motion: no-preference (the cab's drive-in is the homepage's own class);
+   - states that wait for the visitor to scroll (the lanes arriving, the form card's shadow, the
+     questions appearing) are hidden only when html[data-motion='on'] (src/lib/motion.js) or inside
+     no-preference, and the page adds `is-in` the moment they are on screen. A reader who asks for
+     reduced motion gets the finished page at once.
+   Only transform and opacity animate, so nothing on the page shifts. The one exception is the short
+   colour change when a lane is chosen or a field is focused. */
+
+:root {
+  --ct-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ct-brake: cubic-bezier(0.12, 0.8, 0.24, 1); /* same braking curve as the homepage cab */
+}
+
+/* ---------- Hero: the page-load sequence ---------- */
+
+/* Mask for the rising headline words. Padding keeps ascenders and descenders from being clipped;
+   the negative margin gives the space back, so the lines sit exactly where they did. */
+.ct-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-block: 0.16em;
+  margin-block: -0.16em;
+}
+.ct-rise { display: inline-block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ct-rise { animation: ct-rise 0.95s var(--ct-ease) backwards; animation-delay: calc(0.1s + var(--i, 0) * 0.12s); }
+  .ct-fade { animation: ct-fade 0.8s ease-out 0.6s backwards; }
+}
+@keyframes ct-rise { from { transform: translateY(115%); } }
+@keyframes ct-fade { from { opacity: 0; } }
+
+/* ---------- Lanes: four cards, one chosen ---------- */
+
+/* The chosen card is filled by a dark layer behind the text. Choosing raises it from the bottom; the
+   card that was chosen before lets it leave upward, so the fill appears to be handed from one to the next. */
+.ct-face {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--color-wash);
+}
+.ct-face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-asphalt);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+.ct-lane input:checked + .ct-face { color: var(--color-plate); }
+.ct-lane input:checked + .ct-face::before { transform: scaleY(1); transform-origin: bottom; }
+/* Hover tint only where there is a real hover (Tailwind's hover: does the same), so a tap on a phone
+   does not leave the card yellow. */
+@media (hover: hover) {
+  .ct-lane input:not(:checked) + .ct-face:hover { background-color: color-mix(in srgb, var(--color-plate) 40%, white); }
+}
+.ct-lane input:focus-visible + .ct-face { outline: 3px solid var(--color-asphalt); outline-offset: 3px; }
+
+/* A road stud before the card's name: hollow until chosen, then lit. Marks the cards as a pick-one group. */
+.ct-stud {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  border: 3px solid color-mix(in srgb, currentColor 45%, transparent);
+}
+.ct-lane input:checked + .ct-face .ct-stud { background: var(--color-plate); border-color: var(--color-plate); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ct-face { transition: color 0.3s ease-out, background-color 0.2s ease-out; }
+  .ct-face::before { transition: transform 0.5s var(--ct-brake); }
+  .ct-stud { transition: background-color 0.25s ease-out 0.15s, border-color 0.25s ease-out 0.15s; }
+  .ct-lanes.is-in .ct-lane input:checked + .ct-face .ct-stud { animation: ct-stud 0.45s var(--ct-ease) 0.15s; }
+}
+@keyframes ct-stud { 50% { transform: scale(1.4); } }
+
+/* The cards arrive one after another when the group first scrolls into view. */
+html[data-motion='on'] .ct-lane {
+  transition: opacity 0.6s ease-out calc(0.3s + var(--i, 0) * 0.09s), transform 0.7s var(--ct-ease) calc(0.3s + var(--i, 0) * 0.09s);
+}
+html[data-motion='on'] .ct-lanes:not(.is-in) .ct-lane { opacity: 0; transform: translateY(1.25rem); transition: none; }
+
+/* ---------- The chosen lane: heading, blurb, preview, questions ---------- */
+
+/* Re-keyed by the page on every lane change, so these play again each time. */
+@media (prefers-reduced-motion: no-preference) {
+  .ct-swap { animation: ct-swap 0.55s var(--ct-ease) backwards; animation-delay: calc(0.05s + var(--i, 0) * 0.07s); }
+  .ct-line { animation: ct-line 0.4s var(--ct-ease) backwards; }
+  /* Each question appears a beat after the one above it. Until the card has been on screen the
+     animation waits at its first frame, so a form that starts below the fold plays when it is reached. */
+  .ct-field { animation: ct-field 0.5s var(--ct-ease) backwards; animation-delay: calc(0.1s + var(--i, 0) * 0.045s); }
+  .ct-card:not(.is-in) .ct-field { animation-play-state: paused; }
+}
+@keyframes ct-swap  { from { opacity: 0; transform: translateY(0.6rem); } }
+@keyframes ct-line  { from { opacity: 0; transform: translateY(0.4rem); } }
+@keyframes ct-field { from { opacity: 0; transform: translateY(0.75rem); } }
+
+/* ---------- Message preview: a WhatsApp bubble that fills in as the visitor types ---------- */
+
+.ct-bubble {
+  position: relative;
+  padding: 0.7rem 0.95rem 0.8rem;
+  border-radius: 0.25rem 0.9rem 0.9rem 0.9rem;
+  background: color-mix(in srgb, var(--color-wa) 20%, white);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-asphalt) 25%, transparent);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+/* the tail, top left, where an incoming message has it */
+.ct-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -0.5rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  background: inherit;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+
+/* ---------- The form card ---------- */
+
+/* The photo's hard shadow from /about: slides out from behind the card the first time it is on screen. */
+.ct-card { --off: 0.75rem; }
+@media (min-width: 48rem) {
+  .ct-card { --off: 1.1rem; }
+}
+.ct-card-shadow { transform: translate(var(--off), var(--off)); }
+html[data-motion='on'] .ct-card-shadow { transition: transform 0.8s var(--ct-ease) 0.2s; }
+html[data-motion='on'] .ct-card:not(.is-in) .ct-card-shadow { transform: translate(0, 0); transition: none; }
+
+/* A focused question warms to a faint yellow, on top of the page-wide focus ring. */
+.ct-form :is(input:not([type='radio']), select, textarea):focus {
+  background-color: color-mix(in srgb, var(--color-plate) 14%, white);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ct-form :is(input:not([type='radio']), select, textarea) { transition: background-color 0.2s ease-out; }
+}
+
+/* A required question left empty: red edge, and the message eases in. */
+.ct-form [aria-invalid='true'] { border-color: var(--color-tail); }
+@media (prefers-reduced-motion: no-preference) {
+  .ct-error { animation: ct-error 0.3s var(--ct-ease) backwards; }
+  .ct-form [aria-invalid='true'] { animation: ct-nudge 0.4s ease-out; }
+}
+@keyframes ct-error { from { opacity: 0; transform: translateY(-0.35rem); } }
+@keyframes ct-nudge { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+/* Send: a small press, and the confirmation note lands like the name plate on /about. */
+.ct-press:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: no-preference) {
+  .ct-sent { animation: ct-stamp 0.5s var(--ct-brake) backwards; }
+}
+@keyframes ct-stamp { from { opacity: 0; transform: translateY(-0.6rem) scale(1.04); } }
