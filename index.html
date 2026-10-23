@@ -9,11 +9,31 @@
 
     <!-- Intro loader, part 1 of 3: styles. Plain colours rather than the Tailwind tokens, because
          this has to look right before the app's own stylesheet is parsed. They are the same
-         values: plate #F6C000, asphalt #24272C, wash #F2F4F1. Hidden unless part 3 switches it on. -->
+         values: plate #F6C000, asphalt #24272C, wash #F2F4F1. Hidden unless part 3 switches it on.
+
+         Three things here exist only to stop it jittering. Keep them if you copy this to another project:
+         1. The loader has its own copy of the display typeface, under its own name. Waiting for the app's
+            stylesheet (it arrives late in `npm run dev`) meant the name was drawn in a stand-in font and
+            then swapped. Point the url() at your project's display font.
+         2. The loader is `width: 100vw`, not `inset: 0`. When the page renders behind it, a desktop
+            scrollbar appears and the window gets narrower; a loader sized to the window would shift sideways.
+         3. Everything that moves is transform or opacity on its own layer (will-change), and nothing
+            repeats: a looping pattern shows every dropped frame. -->
     <style>
+      @font-face {
+        font-family: 'Sahu Intro';
+        font-style: normal;
+        font-weight: 300 700;
+        font-display: block;
+        src: url(/node_modules/@fontsource-variable/teko/files/teko-latin-wght-normal.woff2) format('woff2-variations');
+      }
+
       .intro {
         position: fixed;
-        inset: 0;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
         z-index: 1000;
         display: none;
         place-items: center;
@@ -22,30 +42,39 @@
         color: #24272c;
         touch-action: none;
         overscroll-behavior: none;
-        transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+        will-change: transform;
+        transition: transform 0.85s cubic-bezier(0.65, 0, 0.35, 1);
       }
       .intro.is-on {
         display: grid;
-        animation: intro-failsafe 0s linear 9s forwards; /* if every script dies, it still goes */
       }
       .intro.is-lift {
         transform: translateY(-102%);
         pointer-events: none;
       }
 
-      /* The road along the bottom edge, with its centre dashes streaming past. It is the last thing
-         to leave: the yellow lifts away with the road as its trailing edge. */
-      .intro::after {
+      /* The road along the bottom edge. Its centre dashes are laid down once, as the name appears, and
+         then stay put. The road is the last thing to leave: the yellow lifts away with it as its edge. */
+      .intro-road {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1.5rem;
+        overflow: hidden;
+        background: #24272c;
+      }
+      .intro-road::before {
         content: '';
         position: absolute;
         left: 0;
-        bottom: 0;
-        width: calc(100% + 56px);
-        height: 1.5rem;
-        background:
-          repeating-linear-gradient(90deg, #f6c000 0 28px, transparent 28px 56px) center / 100% 4px no-repeat,
-          #24272c;
-        animation: intro-road 0.5s linear infinite;
+        right: 0;
+        top: 50%;
+        height: 4px;
+        margin-top: -2px;
+        background: repeating-linear-gradient(90deg, #f6c000 0 28px, transparent 28px 56px);
+        will-change: transform;
+        animation: intro-road 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) both;
       }
 
       .intro-center {
@@ -54,8 +83,9 @@
         align-items: center;
         gap: 1rem;
         margin-top: -4vh;
+        will-change: transform, opacity;
         transition:
-          transform 0.8s cubic-bezier(0.76, 0, 0.24, 1),
+          transform 0.85s cubic-bezier(0.65, 0, 0.35, 1),
           opacity 0.45s ease-in;
       }
       .intro.is-lift .intro-center {
@@ -67,16 +97,18 @@
         display: block;
         width: clamp(4.5rem, 15vw, 6.5rem);
         height: auto;
+        will-change: transform, opacity;
         animation: intro-plant 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
       }
 
-      /* The name rises through a mask, the way the headlines do on the pages. It waits for its
-         typeface (class is-go, added by part 3), so it never shows in a stand-in font. */
+      /* The name rises through a mask, the way the headlines do on the pages. It waits for its typeface
+         (class is-go, added by part 3), so it is never seen in a stand-in font. */
       .intro-name {
         margin: 0;
-        font: 600 clamp(3.5rem, 17vw, 7rem) / 0.95 'Teko Variable', 'Teko', 'Arial Narrow', sans-serif;
+        font: 600 clamp(3.5rem, 17vw, 7rem) / 0.95 'Sahu Intro', 'Teko Variable', 'Arial Narrow', sans-serif;
         letter-spacing: 0.01em;
         text-align: center;
+        white-space: nowrap;
       }
       .intro-mask {
         display: block;
@@ -85,6 +117,7 @@
       }
       .intro-rise {
         display: block;
+        will-change: transform;
         transform: translateY(115%);
       }
       .intro.is-go .intro-rise {
@@ -106,22 +139,12 @@
         }
       }
       @keyframes intro-road {
-        to {
-          transform: translateX(-56px);
+        from {
+          transform: translateX(-100%);
         }
-      }
-      @keyframes intro-failsafe {
         to {
-          visibility: hidden;
+          transform: none;
         }
-      }
-
-      /* While the curtain is up the page underneath holds its own entrance animations (the hero's
-         headline, the cab), so they play as the curtain clears instead of behind it. */
-      html[data-intro='on'] #root *,
-      html[data-intro='on'] #root *::before,
-      html[data-intro='on'] #root *::after {
-        animation-play-state: paused;
       }
 
       @media (prefers-reduced-motion: reduce), print {
@@ -144,20 +167,22 @@
         </svg>
         <p class="intro-name"><span class="intro-mask"><span class="intro-rise">Sahu Travels</span></span></p>
       </div>
+      <div class="intro-road"></div>
     </div>
 
     <div id="root"></div>
 
     <!-- Part 3 of 3: the controller. It runs before the app's code does, so it covers the real wait (the
-         app downloading), then lifts the curtain once the first page has rendered. Nothing here can trap
-         a reader: a timer ends it after 6 seconds whatever else happens. -->
+         app downloading), then lifts the curtain once the first page has rendered and the browser has
+         gone quiet. It follows the animations rather than a stopwatch, so a slow phone never lifts the
+         curtain halfway through the name. Nothing here can trap a reader: a timer ends it after 6
+         seconds whatever else happens. -->
     <script>
       ;(() => {
         const KEY = 'sahu-intro' // sessionStorage key: rename it in each project
-        const HOLD = 1300 // the least it stays on screen, in ms
+        const HOLD = 450 // how long the finished name stays up so it can be read, in ms
         const GIVE_UP = 6000 // the most it stays on screen, in ms
 
-        const html = document.documentElement
         const loader = document.querySelector('.intro')
         const root = document.getElementById('root')
         if (!loader || !root) return
@@ -179,34 +204,53 @@
         }
 
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+        const frames = (n) =>
+          new Promise((resolve) => {
+            const step = () => (n-- > 0 ? requestAnimationFrame(step) : resolve())
+            step()
+          })
+        const idle = () =>
+          new Promise((resolve) =>
+            'requestIdleCallback' in window ? requestIdleCallback(resolve, { timeout: 500 }) : setTimeout(resolve, 120),
+          )
+
+        const held = [] // the page's own entrance animations, parked until the curtain is on its way
         let lifted = false
         const lift = () => {
           if (lifted) return
           lifted = true
-          loader.classList.add('is-lift') // the curtain goes up (0.8 s, in the CSS)
+          loader.classList.add('is-lift') // the curtain goes up (0.85 s, in the CSS)
+          root.removeAttribute('inert')
           setTimeout(() => {
-            delete html.dataset.intro // the page's own animations start as the curtain clears the screen
-            root.removeAttribute('inert')
-          }, 260)
-          setTimeout(() => loader.remove(), 900)
+            held.forEach((animation) => animation.play()) // the headline and the cab start as the curtain clears them
+          }, 380)
+          setTimeout(() => loader.remove(), 1000)
         }
 
         setTimeout(lift, GIVE_UP) // first, so a failure further down can never leave the curtain up
-        html.dataset.intro = 'on'
         root.setAttribute('inert', '') // nothing behind the curtain can be tabbed to or tapped
         loader.classList.add('is-on')
 
-        // The name rises as soon as its typeface is ready, then gets a moment to be read.
-        const fonts = document.fonts
-        const typeface = fonts
-          ? Promise.race([fonts.load('600 1em "Teko Variable"', loader.textContent.trim()), wait(1200)]).catch(() => {})
+        // 1. The name rises as soon as its typeface is in. Wait for the animation itself to finish, then
+        //    give it a moment to be read.
+        const name = loader.querySelector('.intro-rise')
+        const typeface = document.fonts
+          ? Promise.race([document.fonts.load('600 1em "Sahu Intro"'), wait(1200)]).catch(() => {})
           : Promise.resolve()
-        const named = typeface.then(() => {
-          loader.classList.add('is-go')
-          return wait(1000)
-        })
+        const entrance = typeface
+          .then(
+            () =>
+              new Promise((resolve) => {
+                name.addEventListener('animationend', resolve, { once: true })
+                setTimeout(resolve, 1500) // in case the event never comes
+                loader.classList.add('is-go')
+              }),
+          )
+          .then(() => wait(HOLD))
 
-        // The first page has rendered into #root (or its error message has: main.jsx writes one there).
+        // 2. The first page has rendered into #root (or its error message has: main.jsx writes one there).
+        //    Park its entrance animations at their first frame, wait for its fonts, then for a quiet moment,
+        //    so nothing heavy is happening on the frame the curtain starts to move.
         const rendered = new Promise((resolve) => {
           if (root.firstChild) return resolve()
           new MutationObserver((_, observer) => {
@@ -214,10 +258,21 @@
             resolve()
           }).observe(root, { childList: true })
         })
-          .then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-          .then(() => fonts && Promise.race([fonts.ready, wait(1500)]))
+          .then(() => {
+            if (root.getAnimations && window.CSSAnimation) {
+              root.getAnimations({ subtree: true }).forEach((animation) => {
+                if (animation instanceof CSSAnimation) {
+                  animation.pause()
+                  held.push(animation)
+                }
+              })
+            }
+            return frames(2)
+          })
+          .then(() => document.fonts && Promise.race([document.fonts.ready, wait(2000)]))
+          .then(idle)
 
-        Promise.all([wait(HOLD), named, rendered]).then(lift)
+        Promise.all([entrance, rendered]).then(() => frames(1)).then(lift)
       })()
     </script>
     <script type="module" src="/src/main.jsx"></script>
