@@ -1,5 +1,6 @@
 import { business, site } from '../content.js'
 import { askAbout, telLink } from '../lib/links.js'
+import SocialLinks from './SocialLinks.jsx'
 
 const link = 'underline decoration-wash/40 underline-offset-4 hover:decoration-plate hover:text-plate'
 
@@ -38,6 +39,11 @@ export default function Footer({ stickyBar = true }) {
               </a>
             </li>
             <li>
+              <a href="tel:9826762835" className={link}>
+                Call +91 98267 62835
+              </a>
+            </li>
+            <li>
               <a href={askAbout("I'd like the best price for a cab.")} target="_blank" rel="noopener noreferrer" className={link}>
                 Message on WhatsApp
               </a>
@@ -53,6 +59,7 @@ export default function Footer({ stickyBar = true }) {
               Open in Google Maps
             </a>
           )}
+          <SocialLinks className="mt-4" />
         </div>
       </div>
 

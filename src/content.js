@@ -12,6 +12,8 @@ export const business = {
   phone: '+919399059038', // placeholder: +91 + ten-digit mobile
   phoneDisplay: '+91 93990 59038', // placeholder: how the number is printed on the page
   address: 'Changorabhata, Raipur, Chhattisgarh', // placeholder: add street and landmark
+  instagram: 'https://www.instagram.com/dineshsahu305/', // added social link
+  facebook: 'https://www.facebook.com/dinesa.sahu.dinesa.sahu.998277', // added social link
   mapsUrl: '', // optional: a Google Maps share link adds an "Open in Google Maps" link
 }
 
