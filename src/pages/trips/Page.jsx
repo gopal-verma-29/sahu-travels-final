@@ -10,7 +10,9 @@ import './trips.css'
 // phone bar) comes from App.jsx.
 //
 // Nearest first. Sorting here means a corrected distance in content.js re-orders the road by itself.
-const stops = [...tours].sort((a, b) => a.km - b.km)
+// A stop whose km is missing or not a number goes last, rather than leaving the whole order undefined.
+const dist = (t) => (Number.isFinite(t.km) ? t.km : Infinity)
+const stops = [...tours].sort((a, b) => (dist(a) === dist(b) ? 0 : dist(a) < dist(b) ? -1 : 1))
 
 export default function TripsPage() {
   return (

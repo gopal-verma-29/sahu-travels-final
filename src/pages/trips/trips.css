@@ -1,5 +1,5 @@
 /* Motion and the few rules for /trips that utilities cannot express.
-   Only transform, clip-path and stroke-dashoffset move. Nothing here changes layout. */
+   Only transform and clip-path move. Nothing here changes layout. */
 
 @layer components {
   /* Odometer: one wheel per digit, each a strip of 0 to 9 slid into place. */
@@ -48,14 +48,12 @@
     transform: none;
   }
 }
+/* Falling water: a dash pattern slid down by exactly one period, so the loop has no seam. It has to be a transform:
+   those run on the compositor, while a stroke-dashoffset animation keeps the main thread busy on every frame
+   (measured: about 50% of it on a throttled phone, against about 2% for a transform). */
 @keyframes scene-fall {
   to {
-    stroke-dashoffset: -24;
-  }
-}
-@keyframes scene-flow {
-  to {
-    stroke-dashoffset: -26;
+    transform: translateY(var(--fall, 24px));
   }
 }
 @keyframes scene-drift {
@@ -90,13 +88,10 @@ html[data-motion='on'] .reach[data-seen] .reach-fill {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Poster motion only where the subject really moves: falling water, a river, mist, a ropeway cabin.
+  /* Poster motion only where the subject really moves: falling water, mist, a ropeway cabin.
      It runs only while that card is on screen. */
   .scene-fall {
     animation: scene-fall 1.1s linear infinite paused;
-  }
-  .scene-flow {
-    animation: scene-flow 2.4s linear infinite paused;
   }
   .scene-drift {
     animation: scene-drift 12s ease-in-out infinite alternate paused;
@@ -104,7 +99,7 @@ html[data-motion='on'] .reach[data-seen] .reach-fill {
   .scene-cabin {
     animation: scene-cabin 9s ease-in-out infinite alternate paused;
   }
-  [data-live='true'] :is(.scene-fall, .scene-flow, .scene-drift, .scene-cabin) {
+  [data-live='true'] :is(.scene-fall, .scene-drift, .scene-cabin) {
     animation-play-state: running;
   }
 }

@@ -14,6 +14,7 @@ export default function TripsRoad({ stops }) {
   const here = stops.find((s) => s.slug === activeId)
   const reached = stops.findIndex((s) => s.slug === activeId)
   const maxKm = Math.max(0, ...stops.map((s) => s.km).filter(Number.isFinite))
+  const digits = Math.max(3, String(Math.round(maxKm)).length) // 3 wheels, a 4th only if a trip is 1,000 km or more
 
   return (
     <section className="bg-asphalt text-wash [--focus:var(--color-plate)]">
@@ -21,11 +22,11 @@ export default function TripsRoad({ stops }) {
       <div ref={road} className="relative mx-auto max-w-6xl px-5 pt-8 pb-16 md:pb-24">
         {/* Trip meter: stays at the top of the screen while the road is on screen. */}
         <div aria-hidden="true" className="pointer-events-none sticky top-3 z-20 mb-14 h-0">
-          <div className="inline-flex min-w-[11.5rem] items-center gap-2.5 rounded-md bg-plate py-1 pr-3.5 pl-1.5 text-asphalt shadow-[0_3px_0_rgba(0,0,0,0.45)]">
-            <span className="rounded-sm bg-asphalt px-1.5 pt-1 text-plate">
-              <Odometer value={here?.km ?? 0} digits={3} className="text-[2rem]" />
+          <div className="inline-flex max-w-full min-w-[min(11.5rem,100%)] items-center gap-2.5 rounded-md bg-plate py-1 pr-3.5 pl-1.5 text-asphalt shadow-[0_3px_0_rgba(0,0,0,0.45)]">
+            <span className="shrink-0 rounded-sm bg-asphalt px-1.5 pt-1 text-plate">
+              <Odometer value={here?.km ?? 0} digits={digits} className="text-[2rem]" />
             </span>
-            <span className="pt-1 font-display text-[1.5rem] leading-none font-semibold">
+            <span className="min-w-0 truncate pt-1 font-display text-[1.5rem] leading-none font-semibold">
               km {here ? `to ${here.name}` : `in ${ui.start}`}
             </span>
           </div>

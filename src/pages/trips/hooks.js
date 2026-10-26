@@ -4,14 +4,11 @@ import { motionOn } from '../../lib/motion.js'
 // True while the element is on screen, and false again once it scrolls away. This is what pauses a poster's
 // animation when its card is off screen. (src/lib/useInView.js is the other one: it turns true once and stays.)
 export function useOnScreen(ref, { threshold = 0.2 } = {}) {
-  const [on, setOn] = useState(false)
+  // Without IntersectionObserver (very old browsers) every poster simply counts as on screen.
+  const [on, setOn] = useState(() => !('IntersectionObserver' in window))
   useEffect(() => {
     const el = ref.current
-    if (!el) return
-    if (!('IntersectionObserver' in window)) {
-      setOn(true)
-      return
-    }
+    if (!el || !('IntersectionObserver' in window)) return
     const io = new IntersectionObserver(([entry]) => setOn(entry.isIntersecting), { threshold })
     io.observe(el)
     return () => io.disconnect()

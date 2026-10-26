@@ -37,6 +37,9 @@ for (const t of tours) {
   if (slugs.has(t.slug)) problems.push(`tour slug "${t.slug}" is used twice`)
   slugs.add(t.slug)
 
+  // The /trips page orders the road, draws the milestones and fills the distance bars from km, so it must be a real number.
+  if (!Number.isFinite(t.km) || t.km <= 0) problems.push(`tour "${t.name}": km must be a number above zero (the /trips page orders and draws by it)`)
+
   // No money wording and no unfilled placeholders in anything a trip shows.
   const texts = [t.note, t.summary, t.bestSeason, t.driveTime, ...(t.highlights ?? []).flatMap((h) => [h?.name, h?.text])]
   for (const s of texts.filter((x) => typeof x === 'string')) {

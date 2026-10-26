@@ -92,7 +92,7 @@ export default function TripStop({ trip, passed, maxKm }) {
         aria-hidden="true"
         className="absolute top-7 left-[var(--gx)] z-10 h-4 w-3.5 -translate-x-1/2 rounded-t-full border-2 border-plate bg-asphalt transition-colors group-data-[passed=true]:bg-plate"
       />
-      <article aria-labelledby={`${slug}-name`} className="grid md:grid-cols-[1.15fr_1fr]">
+      <article aria-labelledby={`${slug}-name`} className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr]">
         <div className="relative">
           <Poster slug={slug} />
           <a
@@ -107,9 +107,9 @@ export default function TripStop({ trip, passed, maxKm }) {
           <KmCap km={km} />
         </div>
 
-        <div className="flex flex-col gap-4 bg-asphalt-soft p-5 pt-7 md:p-8 md:pt-9">
-          <div>
-            <h3 id={`${slug}-name`} className="font-display text-[clamp(2.75rem,7vw,3.75rem)] leading-[0.9] font-semibold">
+        <div className="flex min-w-0 flex-col gap-4 bg-asphalt-soft p-5 pt-7 md:p-8 md:pt-9">
+          <div className="@container">
+            <h3 id={`${slug}-name`} className="font-display text-[clamp(1.75rem,15cqw,3.75rem)] leading-[0.9] font-semibold [overflow-wrap:anywhere]">
               {name}
             </h3>
             <p className="mt-2 font-display text-2xl leading-none font-semibold text-plate">{trip.trip}</p>
@@ -119,7 +119,7 @@ export default function TripStop({ trip, passed, maxKm }) {
           <Facts trip={trip} />
           <div className="mt-auto space-y-5 pt-3">
             <Reach km={km} maxKm={maxKm} seen={seen} />
-            <div className="grid grid-cols-2 gap-2 sm:flex">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-2 sm:flex sm:flex-wrap">
               <LinkButton variant="plate" size="sm" href={quoteHref(name)}>
                 {ui.quote}
               </LinkButton>

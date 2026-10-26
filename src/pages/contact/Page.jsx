@@ -62,6 +62,7 @@ export default function ContactPage() {
   const change = (id) => (e) => {
     setValues((v) => ({ ...v, [id]: e.target.value }))
     if (id === invalid) setInvalid('')
+    setSentUrl('') // an edited message is a draft again: the "open WhatsApp here" link must not carry the old one
   }
 
   function onSubmit(e) {

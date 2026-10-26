@@ -261,7 +261,12 @@
           .then(() => {
             if (root.getAnimations && window.CSSAnimation) {
               root.getAnimations({ subtree: true }).forEach((animation) => {
-                if (animation instanceof CSSAnimation) {
+                // Only the page's own one-shot entrance animations that are running right now. An animation that
+                // the page's CSS has paused (a poster that is off screen, a form waiting to be scrolled to) or
+                // one that loops must stay under CSS control: once .play() is called on it, animation-play-state
+                // no longer applies, and it would run for the rest of the visit.
+                const timing = animation.effect && animation.effect.getComputedTiming ? animation.effect.getComputedTiming() : null
+                if (animation instanceof CSSAnimation && animation.playState === 'running' && timing && timing.iterations !== Infinity) {
                   animation.pause()
                   held.push(animation)
                 }

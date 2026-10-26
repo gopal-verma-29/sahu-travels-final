@@ -12,9 +12,9 @@ import PhotoCredits from './PhotoCredits.jsx'
 export default function OpenInvite() {
   return (
     <section id="enquire" className="scroll-mt-4 bg-plate text-asphalt">
-      <div className="mx-auto grid max-w-6xl items-end gap-10 px-5 py-16 md:grid-cols-[1fr_auto] md:py-24">
-        <div>
-          <h2 className={h2}>{anywhere.trip}</h2>
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-end gap-10 px-5 py-16 md:grid-cols-[1fr_auto] md:py-24">
+        <div className="min-w-0">
+          <h2 className={`${h2} [overflow-wrap:anywhere]`}>{anywhere.trip}</h2>
           <p className="mt-4 max-w-[36ch] text-xl">{anywhere.note}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <LinkButton stack variant="ink" href={quoteHref()}>

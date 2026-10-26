@@ -137,7 +137,7 @@ function Rajim() {
       <rect x="114" y="234" width="212" height="6" fill={K} />
       {/* three rivers meeting */}
       <rect y="240" width="480" height="60" fill={KS} />
-      <g fill="none" stroke={W} strokeWidth="3" strokeLinecap="round" strokeDasharray="14 12" className="scene-flow">
+      <g fill="none" stroke={W} strokeWidth="3" strokeLinecap="round" strokeDasharray="14 12">
         <path d="M-10 270C80 258 160 262 240 276" />
         <path d="M490 258C400 256 320 264 240 276" />
         <path d="M110 306C160 296 200 288 240 276" />
@@ -317,7 +317,13 @@ function Chitrakote() {
     const xb = x + (f - 0.5) * 10
     const tb = (xb - 44) / 392
     const bottom = 226 + 52 * tb * (1 - tb) - 6
-    return { d: `M${x.toFixed(1)} ${top.toFixed(1)}L${xb.toFixed(1)} ${bottom.toFixed(1)}`, thick: i % 3 === 0, moving: i % 2 === 0 }
+    return {
+      d: `M${x.toFixed(1)} ${top.toFixed(1)}L${xb.toFixed(1)} ${bottom.toFixed(1)}`,
+      // the falling ones are straight and start one dash period (24) early, so sliding the group down by 24 looks endless
+      fall: `M${x.toFixed(1)} ${(top - 24).toFixed(1)}V${bottom.toFixed(1)}`,
+      thick: i % 3 === 0,
+      moving: i % 2 === 0,
+    }
   })
   return (
     <Frame>
@@ -326,6 +332,10 @@ function Chitrakote() {
           <stop offset="0" stopColor="#DADDD6" />
           <stop offset="1" stopColor={W} />
         </linearGradient>
+        {/* the curtain, inset 6 from its edges: the falling streaks are clipped to it */}
+        <clipPath id="ck-curtain">
+          <path d="M50 132Q240 166 430 132L436 220Q240 246 44 220Z" />
+        </clipPath>
       </defs>
       <rect width="480" height="300" fill="url(#ck-sky)" />
       <circle cx="404" cy="62" r="24" fill={Y} />
@@ -334,15 +344,13 @@ function Chitrakote() {
       <path d="M50 126Q240 160 430 126L430 112Q240 146 50 112Z" fill={W} opacity="0.9" />
       <path d="M50 126Q240 160 430 126L436 226Q240 252 44 226Z" fill={W} />
       <g fill="none" stroke={KS} strokeLinecap="round">
-        {streaks.map((s, i) => (
-          <path
-            key={i}
-            d={s.d}
-            strokeWidth={s.thick ? 2.4 : 1.3}
-            opacity="0.22"
-            {...(s.moving ? { strokeDasharray: '10 14', className: 'scene-fall' } : {})}
-          />
-        ))}
+        {streaks.map((s, i) => !s.moving && <path key={i} d={s.d} strokeWidth={s.thick ? 2.4 : 1.3} opacity="0.22" />)}
+      </g>
+      {/* the clip sits on the outer group so it stays put while the inner one slides */}
+      <g clipPath="url(#ck-curtain)">
+        <g fill="none" stroke={KS} strokeLinecap="round" strokeDasharray="10 14" opacity="0.22" className="scene-fall">
+          {streaks.map((s, i) => s.moving && <path key={i} d={s.fall} strokeWidth={s.thick ? 2.4 : 1.3} />)}
+        </g>
       </g>
       {/* rock and jungle either side, kept to the corners so the curtain stays clear */}
       <path d="M0 92L52 126L44 228L0 248Z" fill={KS} />
@@ -377,6 +385,9 @@ function Mainpat() {
           <stop offset="0" stopColor={W} stopOpacity="0" />
           <stop offset="1" stopColor={W} stopOpacity="0.75" />
         </linearGradient>
+        <clipPath id="mp-stream">
+          <rect x="308" y="230" width="20" height="32" />
+        </clipPath>
       </defs>
       <rect width="480" height="300" fill="url(#mp-sky)" />
       <circle cx="376" cy="100" r="34" fill={Y} />
@@ -395,7 +406,11 @@ function Mainpat() {
       <Pine x={452} y={224} s={0.9} />
       {/* the waterfall */}
       <path d="M318 228V264" stroke={W} strokeWidth="7" strokeLinecap="round" />
-      <path d="M318 230V262" stroke={KS} strokeWidth="1.5" strokeDasharray="8 10" opacity="0.5" className="scene-fall" />
+      <g clipPath="url(#mp-stream)">
+        <g className="scene-fall" style={{ '--fall': '18px' }}>
+          <path d="M318 212V262" stroke={KS} strokeWidth="1.5" strokeDasharray="8 10" opacity="0.5" />
+        </g>
+      </g>
       <g className="scene-drift" fill={W}>
         <ellipse cx="312" cy="266" rx="30" ry="8" opacity="0.7" />
         <ellipse cx="338" cy="270" rx="24" ry="6" opacity="0.55" />

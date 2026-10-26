@@ -22,14 +22,14 @@ export default function Poster({ slug }) {
 
   const showingPhoto = photo && state === 'ready'
   return (
-    <div className="relative aspect-[4/3] overflow-hidden bg-plate md:aspect-auto md:h-full md:min-h-[24rem]">
+    <div className="@container relative aspect-[4/3] overflow-hidden bg-plate md:aspect-auto md:h-full md:min-h-[24rem]">
       {Scene && <Scene />}
       {photo && state !== 'failed' && (
         <img
           ref={img}
           src={photo.src}
           srcSet={photo.srcSet}
-          sizes="(min-width: 1024px) 640px, 100vw"
+          sizes="(min-width: 1024px) 600px, (min-width: 768px) 50vw, 100vw"
           width={photo.width}
           height={photo.height}
           alt={photo.alt ?? ''}
@@ -46,7 +46,7 @@ export default function Poster({ slug }) {
         <p
           lang="hi"
           aria-hidden="true"
-          className={`pointer-events-none absolute top-3 left-4 font-display text-[clamp(3.25rem,15vw,5rem)] leading-[0.95] font-semibold md:top-5 md:left-6 ${
+          className={`pointer-events-none absolute top-3 left-4 font-display text-[clamp(2.25rem,17cqw,5rem)] leading-[0.95] font-semibold md:top-5 md:left-6 ${
             v.ink === 'plate' ? 'text-plate' : 'text-asphalt'
           }`}
         >
