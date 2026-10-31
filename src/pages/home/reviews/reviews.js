@@ -16,11 +16,18 @@ export const reviews = {
   rating: '4.9',
   count: 107,
   items: [
+
     {
       name: 'Lokesh Sahu',
       lang: 'hi',
       text: '\u091c\u093f\u0938 \u0917\u093e\u095c\u0940 \u0938\u0947 \u0939\u092e\u0928\u0947 travel \u0915\u093f\u092f\u0947 \u0935\u094b \u0938\u093e\u092b \u0938\u0941\u0925\u0930\u0940 \u0925\u0940, \u0921\u094d\u0930\u093e\u0907\u0935\u0930 \u092d\u0948\u092f\u093e \u0915\u093e \u0935\u094d\u092f\u0935\u0939\u093e\u0930 \u092c\u0939\u0941\u0924 \u0905\u091a\u094d\u091b\u093e \u0925\u093e, \u0938\u0940\u091f\u0947\u0902 comfortable \u0925\u0940\n\u0938\u092b\u0930 \u092e\u0947\u0902 \u0915\u094b\u0908 \u0926\u093f\u0915\u094d\u0915\u0924 \u0928\u0939\u0940\u0902 \u0906\u0908',
     },
+    {
+      name: 'Tanmay Singh Thakur',
+      text: "The driver's behavior is very well\n\nAnd their cooperation is also good ...",
+      img: '/images/reviews/review1.webp',
+    },
+
     {
       name: 'Tikesh Patel',
       lang: 'hi-Latn',

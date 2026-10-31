@@ -155,10 +155,14 @@ function Card({ r, i }) {
         <blockquote lang={r.lang}>
           <p className={`whitespace-pre-line text-pretty ${quoteType(r.text)}`}>{r.text}</p>
         </blockquote>
+        {r.img && (
+          <img src={r.img} alt="" className="mt-2 max-h-40 w-full object-cover rounded" />
+        )}
         <figcaption className="rv-plate absolute -bottom-4 left-4 max-w-[calc(100%-2rem)] truncate rounded-md border-[3px] border-asphalt bg-plate px-3 pt-1.5 pb-0.5 font-display text-[1.6rem] font-semibold leading-none">
           {r.name}
         </figcaption>
       </figure>
+
     </li>
   )
 }
