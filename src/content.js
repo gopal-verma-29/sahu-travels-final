@@ -361,7 +361,7 @@ export const vehicles = {
       goodFor: 'Family groups, corporate travel, group airport transfers and tours',
       text: 'Our premium van. Big windows, a high roof and a sliding side door make it easy to get in and comfortable over a long day. Built for groups who want to travel well together.',
       features: ['Air-conditioned', 'Big windows', 'Sliding side door'],
-      photos: [ph('urbania-1', 'Force Urbania, side view'), ph('urbania-2', 'Force Urbania with the sliding door open'), ph('urbania-3', 'Urbania cabin with blue seats')],
+      photos: [ph('urbania-1', 'Force Urbania, side view'), ph('urbania-2', 'Force Urbania with the sliding door open'), ph('urbania-3', 'Urbania cabin with blue seats'), ph('urbania4', 'Force Urbania, extra view')],
     },
     {
       id: 'traveller', name: '17-seater Traveller', make: 'Force Traveller tempo traveller', kind: 'tempo', want: 'a 17-seater Traveller',

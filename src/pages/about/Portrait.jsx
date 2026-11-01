@@ -28,6 +28,13 @@ export default function Portrait({ className = '' }) {
         </picture>
       </div>
       <figcaption className="ab-stamp absolute bottom-0 left-4 md:left-6">
+        <div className="flex justify-center gap-1 mb-2">
+          <span className="text-2xl text-yellow-400">★</span>
+          <span className="text-2xl text-yellow-400">★</span>
+          <span className="text-2xl text-yellow-400">★</span>
+          <span className="text-2xl text-yellow-400">★</span>
+          <span className="text-2xl text-yellow-400">★</span>
+        </div>
         <span className="inline-block rounded-md border-[3px] border-asphalt bg-plate px-4 pt-2 pb-1 font-display text-[2.1rem] font-semibold leading-none md:text-[2.5rem]">
           {caption}
         </span>
