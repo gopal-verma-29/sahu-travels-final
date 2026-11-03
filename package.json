@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-placeholders.mjs && vite build",
+    "build": "node scripts/check-placeholders.mjs && vite build && node scripts/check-seo.mjs",
     "check": "node scripts/check-placeholders.mjs",
     "preview": "vite preview",
-    "build:demo": "vite build"
+    "build:demo": "vite build",
+    "check:seo": "node scripts/check-seo.mjs"
   },
   "type": "module",
   "private": true,

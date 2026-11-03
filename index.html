@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!--seo:begin--><!--seo:end-->
     <meta name="theme-color" content="#F6C000" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Favicon. Google Search lists BMP, GIF, ICO, PNG, JPEG, PPM and TIFF as supported favicon formats,
+         and SVG is not on that list, so the SVG is no longer declared here. Keep these three: .ico (16/32/48),
+         a 192px PNG (Google recommends larger than 48px) and the iOS home-screen icon. Keep the file URLs
+         stable: Google asks for that. -->
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Intro loader, part 1 of 3: styles. Plain colours rather than the Tailwind tokens, because
          this has to look right before the app's own stylesheet is parsed. They are the same

@@ -18,7 +18,11 @@ export const business = {
 }
 
 export const site = {
-  url: 'https://raipurcabs.in', // set to the live address (https://...) to add canonical and share-preview tags
+  // The ONE live address. Canonical tags, og:url, the sitemap, robots.txt and the structured data are all built from
+  // it (public/sitemap.xml and public/robots.txt are NOT used: the build writes its own). It must be the primary
+  // domain in Vercel (Settings > Domains), the one the others redirect to. No trailing slash.
+  url: 'https://sahutravelsraipur.in',
+  ogImage: { path: '/og-image.jpg', width: 1200, height: 630, alt: 'Sahu Travels, cab and tempo traveller rental in Raipur' },
   title: `Cab and tempo traveller rental in Raipur | ${business.name}`,
   description:
     'Book a cab, SUV or tempo traveller in Raipur for airport pickups, outstation trips and tours across Chhattisgarh. Message on WhatsApp or call for the best price.',

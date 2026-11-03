@@ -11,7 +11,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { site } from '../src/content.js'
+import { business, site } from '../src/content.js'
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 const SEO = /<!--seo:begin-->[\s\S]*?<!--seo:end-->/
@@ -60,7 +60,20 @@ function headBlock(page) {
     `<meta property="og:type" content="website" />`,
     `<meta property="og:title" content="${esc(page.title)}" />`,
     `<meta property="og:description" content="${esc(page.description)}" />`,
+    `<meta property="og:site_name" content="${esc(business.name)}" />`,
+    `<meta property="og:locale" content="en_IN" />`,
   ]
+  // The link preview WhatsApp, Facebook and X show. It needs an absolute address, so it waits for site.url.
+  if (base && site.ogImage && !page.noindex) {
+    const img = site.ogImage
+    lines.push(
+      `<meta property="og:image" content="${esc(base + img.path)}" />`,
+      `<meta property="og:image:width" content="${img.width}" />`,
+      `<meta property="og:image:height" content="${img.height}" />`,
+      `<meta property="og:image:alt" content="${esc(img.alt)}" />`,
+      `<meta name="twitter:card" content="summary_large_image" />`,
+    )
+  }
   if (url) lines.push(`<meta property="og:url" content="${esc(url)}" />`, `<link rel="canonical" href="${esc(url)}" />`)
   if (page.noindex) lines.push(`<meta name="robots" content="noindex" />`)
   if (page.head) lines.push(...[].concat(page.head)) // extra raw tags, e.g. an image preload
