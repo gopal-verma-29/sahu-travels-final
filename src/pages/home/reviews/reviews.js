@@ -14,7 +14,7 @@ export const reviews = {
   title: 'What passengers say',
   lead: 'Reviews from our Google profile, in the customers\u2019 own words.',
   rating: '4.9',
-  count: 107,
+  count: 114,
   items: [
 
     {
